@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS `{project_id}.{dataset_id}.department_summary` (
   employee_count INT64,
   avg_salary FLOAT64,
   total_salary INT64,
-  last_updated TIMESTAMP
+  last_updated TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
 )
 OPTIONS(
   description="Department summary statistics"
