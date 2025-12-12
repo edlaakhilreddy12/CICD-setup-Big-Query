@@ -1,0 +1,22 @@
+# CODEOWNERS file
+# This file defines who owns different parts of the codebase
+# When a PR is created, these users are automatically requested as reviewers
+
+# Default owner for everything
+* @edlaakhilreddy12
+
+# Production config requires your approval
+/config/config-prod.yaml @edlaakhilreddy12
+
+# Workflow changes require your approval
+/.github/workflows/ @edlaakhilreddy12
+
+# SQL changes require your approval
+/sql/ @edlaakhilreddy12
+
+# Script changes require your approval
+/scripts/ @edlaakhilreddy12
+
+# You can add more specific owners later:
+# /data/ @edlaakhilreddy12 @another-user
+# /config/config-dev.yaml @dev-team-member
