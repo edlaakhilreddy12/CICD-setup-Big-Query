@@ -1,0 +1,44 @@
+[
+  {
+    "name": "id",
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "Unique employee identifier"
+  },
+  {
+    "name": "name",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Employee full name"
+  },
+  {
+    "name": "email",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Employee email address"
+  },
+  {
+    "name": "department",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Department name"
+  },
+  {
+    "name": "salary",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Annual salary in USD"
+  },
+  {
+    "name": "hire_date",
+    "type": "DATE",
+    "mode": "NULLABLE",
+    "description": "Date when employee was hired"
+  },
+  {
+    "name": "is_active",
+    "type": "BOOLEAN",
+    "mode": "NULLABLE",
+    "description": "Whether employee is currently active"
+  }
+]

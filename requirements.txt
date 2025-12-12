@@ -1,0 +1,18 @@
+# Python Dependencies for BigQuery CI/CD Pipeline
+
+# Google Cloud BigQuery library
+# This is the main library for interacting with BigQuery
+google-cloud-bigquery==3.14.1
+
+# YAML configuration file parser
+# Allows us to read config.yaml file
+PyYAML==6.0.1
+
+# Google Cloud Storage (optional - for loading data from GCS)
+# google-cloud-storage==2.14.0
+
+# Pandas (optional - for data manipulation)
+# pandas==2.1.4
+
+# Note: These are pinned versions for reproducibility
+# You can update them, but test thoroughly before deploying

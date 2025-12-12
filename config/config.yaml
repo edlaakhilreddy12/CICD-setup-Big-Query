@@ -1,0 +1,26 @@
+# Configuration for BigQuery CI/CD Pipeline
+#
+# 🔧 YOU NEED TO UPDATE THESE VALUES!
+#
+# Replace the placeholder values below with your actual Google Cloud details.
+# This file contains all the configuration for your pipeline.
+
+# Google Cloud Project Configuration
+gcp_project_id: "vast-crow-480921-i7"        # Example: "my-data-project-12345"
+dataset_id: "TEST_CICD_PIPELINE"          # Example: "employee_data"
+table_id: "employees"                    # Your main table name
+location: "us-central1"                  # BigQuery location/region
+
+# Data Configuration
+data_file: "sample_data.csv"             # CSV file in data/ folder to load
+schema_file: "table_schema.json"         # Schema file in data/schemas/ folder
+
+# Advanced Options (optional)
+# write_disposition: "WRITE_TRUNCATE"    # WRITE_TRUNCATE, WRITE_APPEND, WRITE_EMPTY
+# max_bad_records: 0                     # How many bad records to tolerate
+# allow_quoted_newlines: false           # Allow newlines in quoted fields
+
+# Notes:
+# - Keep this file in version control (it doesn't contain secrets)
+# - Sensitive credentials are stored in GitHub Secrets
+# - You can create different config files for dev/staging/prod
