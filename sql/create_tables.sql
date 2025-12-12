@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS `{project_id}.{dataset_id}.{table_id}` (
   hire_date DATE,
   is_active BOOL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+  PRIMARY KEY (id)
 )
 OPTIONS(
   description="Employee data table - managed by CI/CD pipeline"
