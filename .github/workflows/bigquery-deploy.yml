@@ -19,7 +19,8 @@ name: Deploy to BigQuery
 on:
   push:
     branches:
-      - main          # Run on every push to main branch
+      - main          # Run on every push to main branch (PRODUCTION)
+      - dev           # Run on every push to dev branch (DEVELOPMENT)
     paths:
       - 'data/**'     # Only run if data files change
       - 'sql/**'      # Only run if SQL files change
@@ -29,18 +30,19 @@ on:
   
   pull_request:
     branches:
-      - main          # Run on pull requests to main (for testing)
+      - main          # Run on pull requests to main (for testing before prod)
+      - dev           # Run on pull requests to dev (for testing before dev)
   
   workflow_dispatch:  # Allow manual trigger from GitHub UI
     inputs:
       environment:
         description: 'Environment to deploy to'
         required: true
-        default: 'production'
+        default: 'dev'
         type: choice
         options:
+          - dev
           - production
-          - staging
 
 # ENVIRONMENT VARIABLES - Available to all jobs
 env:
@@ -122,8 +124,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate  # Wait for validation to complete successfully
     
-    # Only run on main branch (not on pull requests)
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Only run on main or dev branch (not on pull requests)
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev') && github.event_name != 'pull_request'
     
     steps:
       # STEP 1: Checkout code
@@ -143,7 +145,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       
-      # STEP 4: Authenticate with Google Cloud
+      # STEP 4: Determine environment and config file
+      - name: Set environment configuration
+        id: set-env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "config_file=config-prod.yaml" >> $GITHUB_OUTPUT
+            echo "🏭 Deploying to PRODUCTION environment"
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "environment=development" >> $GITHUB_OUTPUT
+            echo "config_file=config-dev.yaml" >> $GITHUB_OUTPUT
+            echo "🔧 Deploying to DEVELOPMENT environment"
+          fi
+      
+      # STEP 5: Display deployment info
+      - name: Show deployment configuration
+        run: |
+          echo "📋 Deployment Details:"
+          echo "   Environment: ${{ steps.set-env.outputs.environment }}"
+          echo "   Branch: ${{ github.ref_name }}"
+          echo "   Config: ${{ steps.set-env.outputs.config_file }}"
+          echo ""
+          echo "📄 Configuration contents:"
+          cat config/${{ steps.set-env.outputs.config_file }}
+      
+      # STEP 6: Authenticate with Google Cloud
       # This is where we use the service account key from GitHub Secrets
       - name: Set up Google Cloud authentication
         env:
@@ -154,30 +181,33 @@ jobs:
           # The Python scripts will read it from the environment variable
           echo "✅ Authentication configured"
       
-      # STEP 5: Load data to BigQuery
+      # STEP 7: Load data to BigQuery (with environment-specific config)
       - name: Load data to BigQuery
         env:
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.SVC_BQ_CICD }}
+          CONFIG_FILE: ${{ steps.set-env.outputs.config_file }}
         run: |
           echo "📤 Starting data load to BigQuery..."
           python scripts/load_data.py
           echo "✅ Data loaded successfully"
       
-      # STEP 6: Run transformations
+      # STEP 8: Run transformations (with environment-specific config)
       - name: Run SQL transformations
         env:
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.SVC_BQ_CICD }}
+          CONFIG_FILE: ${{ steps.set-env.outputs.config_file }}
         run: |
           echo "🔄 Running SQL transformations..."
           python scripts/run_transformations.py
           echo "✅ Transformations completed"
       
-      # STEP 7: Generate deployment summary
+      # STEP 9: Generate deployment summary
       - name: Generate summary
         if: always()  # Run even if previous steps fail
         run: |
           echo "## 📊 Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ steps.set-env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
           echo "**Deployment completed on:** $(date)" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
@@ -188,7 +218,11 @@ jobs:
           echo "- Data loaded to BigQuery" >> $GITHUB_STEP_SUMMARY
           echo "- SQL transformations executed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎉 Pipeline completed successfully!" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "🎉 **PRODUCTION** deployment completed successfully!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🔧 **DEVELOPMENT** deployment completed successfully!" >> $GITHUB_STEP_SUMMARY
+          fi
 
   # JOB 3: Notify on failure (optional)
   notify-failure:

@@ -1,0 +1,17 @@
+# Configuration for BigQuery CI/CD Pipeline - DEVELOPMENT Environment
+#
+# This config is used when deploying to the DEV branch
+# Changes here deploy to development dataset for testing
+
+# Google Cloud Project Configuration
+gcp_project_id: "vast-crow-480921-i7"
+dataset_id: "DEV_TEST_CICD_PIPELINE"     # Development dataset
+table_id: "employees"
+location: "us-central1"
+
+# Data Configuration
+data_file: "sample_data.csv"
+schema_file: "table_schema.json"
+
+# Environment label
+environment: "development"

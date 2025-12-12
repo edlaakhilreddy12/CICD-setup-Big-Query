@@ -18,7 +18,11 @@ import yaml
 
 def load_config():
     """Load configuration from config.yaml file."""
-    config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.yaml')
+    # Check if CONFIG_FILE environment variable is set (for multi-environment support)
+    config_file = os.environ.get('CONFIG_FILE', 'config.yaml')
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'config', config_file)
+    
+    print(f"📖 Loading config from: {config_file}")
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
